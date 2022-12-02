@@ -9,13 +9,13 @@
     <meta name="author" content="yx-Chen">
     <meta name="description" content="About Life, RoboMaster,and ... ">
     <meta name="keywords" content=" ">
-    <link rel="icon" href="/images/avatar.png">
-    <link rel="stylesheet" href="/css/antd.min.css">
+    <link rel="icon" href="/Wiki/images/avatar.png">
+    <link rel="stylesheet" href="/Wiki/css/antd.min.css">
     
-    <link rel="stylesheet" href="/css/full-theme.css">
+    <link rel="stylesheet" href="/Wiki/css/full-theme.css">
     
-    <script src="/js/vue.js"></script>
-    <script src="/js/antd.min.js"></script>
+    <script src="/Wiki/js/vue.js"></script>
+    <script src="/Wiki/js/antd.min.js"></script>
 <meta name="generator" content="Hexo 6.3.0"></head>
 
 <body>
@@ -32,7 +32,7 @@
                     <h2>LOADING...</h2>
                     <p>加载过慢请开启缓存(浏览器默认开启)</p>
                     <div>
-                        <img src="/dancingkitty.gif" alt="loading">
+                        <img src="/Wiki/dancingkitty.gif" alt="loading">
                     </div>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                      
 <nav id="menu">
     <div class="desktop-menu">
-        <a href="/">
+        <a href="/Wiki/">
             <span class="title">❀</span>
         </a>
         
@@ -165,7 +165,7 @@
 
 <div class="post">
 
-    <a href="/2022/12/02/Manipulator-Simulation/">
+    <a href="/Wiki/2022/12/02/Manipulator-Simulation/">
         <h2>
             Manuplator-Simulation
         </h2>
@@ -175,7 +175,7 @@
 
         
         <span class="category">
-            <a href="/categories/RoboMaster">
+            <a href="/Wiki/categories/RoboMaster">
                 <span class="icon">
                     <a-icon type="book" theme="filled" /></span>
                 RoboMaster
@@ -229,7 +229,7 @@
 </code></pre>
 <p><code>slprj</code>文件夹说明：[<code>slprj folder</code>](<a target="_blank" rel="noopener" href="https://www.ilovematlab.cn/thread-214871-1-1.html">slprj文件夹 – MATLAB中文论坛 (ilovematlab.cn)</a>)</p>
 <h2 id="3环境配置"><a href="#3环境配置" class="headerlink" title="3	环境配置"></a>3	环境配置</h2><h3 id="Matlab-Simscape-Contact-Force-Library安装"><a href="#Matlab-Simscape-Contact-Force-Library安装" class="headerlink" title="Matlab Simscape Contact Force Library安装"></a>Matlab Simscape Contact Force Library安装</h3><p>Matlab Simscape Contact Force Library 库是Matlab中的附加功能，在Simscape Multibody仿真中定义物体之间的碰撞力，该库目前对于3D仿真只支持以下几种模型，因此并不能完全定义物体的任一表面，因此在仿真时可对其进行简化。<a target="_blank" rel="noopener" href="https://ww2.mathworks.cn/matlabcentral/fileexchange/47417-simscape-multibody-contact-forces-library?s_tid=srchtitle">MathWorks文档</a></p>
-<p><img src="/2022/12/02/Manipulator-Simulation/3d_library.jpg" alt="3d_library"></p>
+<p><img src="/Wiki/2022/12/02/Manipulator-Simulation/3d_library.jpg" alt="3d_library"></p>
 <p>在Matlab Simscape Contact Force Library中选择对应Matlab的版本（本次仿真为R2022a）进行下载，将解压后文件夹中的<code>CFL_Core</code>文件夹放入工作空间中即可使用。</p>
 <p>除此之外Matlab所下载的附加功能包默认存放在<code>C:\Users\UserName\AppData\Roaming\MathWorks\MATLAB Add-Ons\Collections</code>当中</p>
 <h3 id="其他安装"><a href="#其他安装" class="headerlink" title="其他安装"></a>其他安装</h3><ul>
@@ -256,9 +256,9 @@
 <h4 id="b控制"><a href="#b控制" class="headerlink" title="b	控制"></a>b	控制</h4><p><code>revolute joint</code>可以显示当前关节的角度、速度与力矩，并且可根据输入力矩对关节进行控制。仿真中封装了<code>Double Loop PID block</code>对角度进行控制，对于每一个关节的参数可自行调节</p>
 <p>关节的输入量通过<code>from workspace block</code>从工作空间读取（此处读取为时序信号，已在<code>robot_show.m</code>模块中进行转化）。为保证机械臂的稳定性，输入信号并非阶跃信号而是经过解算的斜坡函数。同时在10s的仿真中，设定运动时间为前3s。</p>
 <p>若将PID产生的控制信号直接输入关节力矩会产生代数环问题，即你的输入信号由输出信号决定，而输出信号又决定了输入信号。因此在输出信号端增加一阶保持器，来仿真实际的控制情况。</p>
-<p><img src="/2022/12/02/Manipulator-Simulation/torque2.png"></p>
-<p><img src="/2022/12/02/Manipulator-Simulation/torque3.png" alt="image-20221201150745469"></p>
-<p><img src="/2022/12/02/Manipulator-Simulation/torque4.png" alt="image-20221201160434181"></p>
+<p><img src="/Wiki/2022/12/02/Manipulator-Simulation/torque2.png"></p>
+<p><img src="/Wiki/2022/12/02/Manipulator-Simulation/torque3.png" alt="image-20221201150745469"></p>
+<p><img src="/Wiki/2022/12/02/Manipulator-Simulation/torque4.png" alt="image-20221201160434181"></p>
 <ul>
 <li>刚开始的超调为仿真环境中重力的影响，</li>
 </ul>
@@ -276,14 +276,14 @@
         
         <span class="tag">
             
-            <a href="/tags/report" style=color:#00a596>
+            <a href="/Wiki/tags/report" style=color:#03a9f4>
                 report
             </a>
         </span>
         
     </div>
 
-    <a href="/2022/12/02/Manipulator-Simulation/ " class="go-post">
+    <a href="/Wiki/2022/12/02/Manipulator-Simulation/ " class="go-post">
         阅读全文
     </a>
 </div>
@@ -335,8 +335,8 @@
 
 </footer>
 
-<script src="/js/highlight.min.js"></script>
-<script src="/js/particle.js"></script>
+<script src="/Wiki/js/highlight.min.js"></script>
+<script src="/Wiki/js/particle.js"></script>
                 </div>
             </div>
         </transition>
