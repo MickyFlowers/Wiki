@@ -165,6 +165,935 @@
 
 <div class="post">
 
+    <a href="/Wiki/2022/12/02/ROS-Communication/">
+        <h2>
+            ROS_Communication
+        </h2>
+    </a>
+
+    <div class="category-and-date">
+
+        
+        <span class="category">
+            <a href="/Wiki/categories/Notes">
+                <span class="icon">
+                    <a-icon type="book" theme="filled" /></span>
+                Notes
+            </a>
+        </span>
+        
+
+        <span class="date">
+            <span class="icon">
+                <a-icon type="calendar" theme="filled" />
+            </span>
+            2022/12/2
+        </span>
+
+    </div>
+
+    <div class="excerpt">
+        <div class="content" v-pre>
+            
+            
+            <h1 id="ROS通信机制"><a href="#ROS通信机制" class="headerlink" title="ROS通信机制"></a>ROS通信机制</h1><p>ROS是进程分布式框架，因为进程甚至可以分布于不同的主句，协同工作从而分散计算压力，因此需要介绍ROS的通信机制</p>
+<ul>
+<li>话题通信（发布订阅）</li>
+<li>服务通信（请求响应模式）</li>
+<li>参数服务器通信（参数共享模式）</li>
+</ul>
+<h2 id="话题通信"><a href="#话题通信" class="headerlink" title="话题通信"></a>话题通信</h2><p>基于发布订阅模式，一个节点发布消息，另一个节点订阅消息，适用于不断更新的数据传输相关的应用场景</p>
+<ul>
+<li>master 管理和匹配话题</li>
+<li>talker 发布者</li>
+<li>listener 订阅者</li>
+</ul>
+<pre><code class="cpp">//publisher
+#include &quot;ros/ros.h&quot;
+#include &quot;std_msgs/String.h&quot;
+
+int main(int argc ,char* argv[])
+&#123;
+    //ros init
+    ros::init(argc,argv,&quot;publisher&quot;);
+
+    //create node handler
+    ros::NodeHandle n;
+    //publisher object
+    ros::Publisher pub=n.advertise&lt;std_msgs::String&gt;(&quot;topic&quot;,10);
+    //publish logic
+    std_msgs::String msg;
+    //frequency
+    ros::Rate rate(10);
+    while(ros::ok())
+    &#123;
+        
+        msg.data= &quot;hello&quot;;
+        pub.publish(msg);
+        rate.sleep();
+    &#125;
+
+    return 0;
+&#125;
+</code></pre>
+<pre><code class="cpp">//subscriber
+#include &quot;ros/ros.h&quot;
+#include &quot;std_msgs/String.h&quot;
+
+void MsgCallback(const std_msgs::String::ConstPtr &amp;msg)&#123;
+
+    ROS_INFO(&quot;topic data:%s&quot;,msg-&gt;data.c_str());
+
+&#125;
+
+int main(int argc,char *argv[])
+&#123;
+    //ros init
+    ros::init(argc,argv,&quot;sub&quot;);
+    //ros handler
+    ros::NodeHandle n;
+    //subsriber create
+    ros::Subscriber sub = n.subscribe(&quot;topic&quot;,10,MsgCallback);
+
+    ros::spin();
+    return 0;
+&#125;
+</code></pre>
+<h2 id="自定义消息"><a href="#自定义消息" class="headerlink" title="自定义消息"></a>自定义消息</h2><p>以固定格式创建msg文件</p>
+<p>编辑配置文件</p>
+<p>编译生成可以被调用中间文件</p>
+<pre><code class="xml">&lt;build_depend&gt;message_generation&lt;/build_depend&gt;
+&lt;exec_depend&gt;message_runtime&lt;/exec_depend&gt;
+</code></pre>
+<pre><code class="makefile">find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  message_generation
+)
+
+add_message_files(
+  FILES
+  Person.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES plubming_pubsub
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+#  DEPENDS system_lib
+)
+</code></pre>
+<p>使用自定义的msg</p>
+<pre><code class="makefile">Person.msg
+
+string name
+int32 age
+float32 height
+</code></pre>
+<pre><code class="cpp">//pub self data
+#include &quot;ros/ros.h&quot;
+#include &quot;plubming_pubsub/Person.h&quot;
+
+int main(int argc,char *argv[])&#123;
+    
+
+    ros::init(argc,argv,&quot;pub_self&quot;);
+
+    ros::NodeHandle n;
+
+    ros::Publisher pub_self = n.advertise&lt;plubming_pubsub::Person&gt;(&quot;self_topic&quot;,10);
+
+    plubming_pubsub::Person person;
+    
+    person.name = &quot;Micky&quot;;
+    person.age = 22;
+    person.height = 1.80;
+
+    ros::Rate rate(1);
+
+    while(ros::ok())
+    &#123;
+        pub_self.publish(person);
+        rate.sleep();
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<pre><code class="cpp">//self data subscriber
+#include &quot;ros/ros.h&quot;
+#include &quot;plubming_pubsub/Person.h&quot;
+
+void selfMsgCallback(const plubming_pubsub::Person::ConstPtr &amp;msg)&#123;
+    
+    ROS_INFO(&quot;self data age is: %d&quot;,msg-&gt;age);
+    ROS_INFO(&quot;self date height is: %.3f&quot;,msg-&gt;height);
+    ROS_INFO(&quot;self data name is: %s&quot;,msg-&gt;name.c_str());
+&#125;
+int main(int argc,char *argv[])
+&#123;
+
+    ros::init(argc,argv,&quot;self_sub&quot;);
+    ros::NodeHandle n;
+    ros::Subscriber sub = n.subscribe(&quot;self_topic&quot;,10,selfMsgCallback);
+    ros::spin();
+    return 0;
+&#125;
+</code></pre>
+<h2 id="服务通信"><a href="#服务通信" class="headerlink" title="服务通信"></a>服务通信</h2><p>有一定实时性要求，并且由一定逻辑处理的应用场景</p>
+<p>自定义srv</p>
+<pre><code class="cpp">//request
+int32 num1
+int32 num2
+---
+//response
+int32 sum
+</code></pre>
+<pre><code class="cpp">add_service_files(
+  FILES
+  Addints.srv
+)
+
+add_dependencies(server $&#123;PROJECT_NAME&#125;_gencpp)
+add_dependencies(client $&#123;PROJECT_NAME&#125;_gencpp)
+</code></pre>
+<pre><code class="cpp">//client.cpp
+#include &quot;plubming_server_client/Addints.h&quot;
+#include &quot;ros/ros.h&quot;
+
+int main(int argc,char* argv[])
+&#123;
+    if(argc != 3)&#123;
+        ROS_INFO(&quot;failed&quot;);
+        return 1;
+    &#125;
+    ros::init(argc,argv,&quot;client&quot;);
+    ros::NodeHandle n;
+    ros::ServiceClient client = n.serviceClient&lt;plubming_server_client::Addints&gt;(&quot;addints&quot;);
+    //request
+    plubming_server_client::Addints add;
+    add.request.num1 = atoi(argv[1]);
+    add.request.num2 = atoi(argv[2]);
+    if (client.call(add))
+    &#123;
+        ROS_INFO(&quot;success&quot;);
+        ROS_INFO(&quot;result = %d&quot;,add.response.sum);
+    &#125;
+    else ROS_INFO(&quot;failed&quot;);
+
+    return 0;
+&#125;
+</code></pre>
+<h2 id="参数服务器"><a href="#参数服务器" class="headerlink" title="参数服务器"></a>参数服务器</h2><p>存储多节点共享的数据，但是并不是为高性能而设计的，因此可以储存一些静态的全局变量</p>
+<pre><code class="cpp">#include &quot;ros/ros.h&quot;
+
+int main(int argc ,char **argv)
+&#123;
+    ros::init(argc,argv,&quot;param_server&quot;);
+    ros::NodeHandle n;
+    //add parameter
+
+    n.setParam(&quot;type&quot;,&quot;xiaohuang&quot;);
+    n.setParam(&quot;radius&quot;,0.15);
+
+    if(n.deleteParam(&quot;type&quot;)) ROS_INFO(&quot;delete success&quot;);
+    else ROS_INFO(&quot;delete failed&quot;);
+    return 0;
+&#125;
+</code></pre>
+<pre><code class="cpp">add_executable(param_server src/param_server.cpp)
+
+target_link_libraries(param_server
+  $&#123;catkin_LIBRARIES&#125;
+)
+</code></pre>
+<pre><code class="cpp">rosparam list
+rosparam get xxx
+</code></pre>
+<p>参数查询</p>
+<pre><code class="cpp">#include &quot;ros/ros.h&quot;
+
+int main(int argc,char** argv)
+&#123;
+
+    ros::init(argc,argv,&quot;param_get&quot;);
+    ros::NodeHandle n;
+
+    //getParamCached
+    double radius = 0;
+    if(n.getParamCached(&quot;radius&quot;,radius))
+    &#123;
+        ROS_INFO(&quot;radius is :%.2f&quot;,radius);
+    &#125;
+    else ROS_INFO(&quot;failed&quot;);
+
+    //getParaNames
+    std::vector&lt;std::string&gt; names;
+    n.getParamNames(names);
+    for (auto &amp;&amp;name:names)
+    &#123;
+        ROS_INFO(&quot;element:%s&quot;,name.c_str());
+    &#125;
+
+    //hasParam
+    bool flag1 = n.hasParam(&quot;radius&quot;);
+    bool flag2 = n.hasParam(&quot;radius fault&quot;);
+    ROS_INFO(&quot;flag1:%d&quot;,flag1);
+    ROS_INFO(&quot;flag2:%d&quot;,flag2);
+
+    std::string key;
+    n.searchParam(&quot;radius&quot;,key);
+    ROS_INFO(&quot;search result %s&quot;,key);
+    return 0;
+&#125;
+</code></pre>
+
+            
+        </div>
+    </div>
+
+    <div class="post-tags">
+        
+        <span class="icon">
+            <a-icon type="tags" theme="filled" />
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="/Wiki/tags/ROS" style=color:#00bcd4>
+                ROS
+            </a>
+        </span>
+        
+    </div>
+
+    <a href="/Wiki/2022/12/02/ROS-Communication/ " class="go-post">
+        阅读全文
+    </a>
+</div>
+
+<div class="post">
+
+    <a href="/Wiki/2022/12/02/ROS-HeadSrcFile/">
+        <h2>
+            HeadFile-and-SrcFile
+        </h2>
+    </a>
+
+    <div class="category-and-date">
+
+        
+        <span class="category">
+            <a href="/Wiki/categories/Notes">
+                <span class="icon">
+                    <a-icon type="book" theme="filled" /></span>
+                Notes
+            </a>
+        </span>
+        
+
+        <span class="date">
+            <span class="icon">
+                <a-icon type="calendar" theme="filled" />
+            </span>
+            2022/12/2
+        </span>
+
+    </div>
+
+    <div class="excerpt">
+        <div class="content" v-pre>
+            
+            
+            <h1 id="自定义头文件与源文件"><a href="#自定义头文件与源文件" class="headerlink" title="自定义头文件与源文件"></a>自定义头文件与源文件</h1><ul>
+<li>编写头文件</li>
+<li>编写源文件</li>
+<li>配置文件</li>
+</ul>
+<pre><code class="cpp">add_library(NAME
+    path of .h
+    path of .cpp
+)
+
+add_dependencies(NAME ...)
+
+target_link_libraries(NAME
+    ...
+)
+在编辑target_link_libraries时需要将library的NAME包含进去
+</code></pre>
+
+            
+        </div>
+    </div>
+
+    <div class="post-tags">
+        
+        <span class="icon">
+            <a-icon type="tags" theme="filled" />
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="/Wiki/tags/ROS" style=color:#ffa2c4>
+                ROS
+            </a>
+        </span>
+        
+    </div>
+
+    <a href="/Wiki/2022/12/02/ROS-HeadSrcFile/ " class="go-post">
+        阅读全文
+    </a>
+</div>
+
+<div class="post">
+
+    <a href="/Wiki/2022/12/02/ROS-Manager/">
+        <h2>
+            ROS_Manager
+        </h2>
+    </a>
+
+    <div class="category-and-date">
+
+        
+        <span class="category">
+            <a href="/Wiki/categories/Notes">
+                <span class="icon">
+                    <a-icon type="book" theme="filled" /></span>
+                Notes
+            </a>
+        </span>
+        
+
+        <span class="date">
+            <span class="icon">
+                <a-icon type="calendar" theme="filled" />
+            </span>
+            2022/12/2
+        </span>
+
+    </div>
+
+    <div class="excerpt">
+        <div class="content" v-pre>
+            
+            
+            <h1 id="ROS运行管理"><a href="#ROS运行管理" class="headerlink" title="ROS运行管理"></a>ROS运行管理</h1><h2 id="ros元功能包"><a href="#ros元功能包" class="headerlink" title="ros元功能包"></a>ros元功能包</h2><p>完成ROS系统一个系统性的功能，可能涉及多个功能包即可。</p>
+<h2 id="ros元功能包的实现"><a href="#ros元功能包的实现" class="headerlink" title="ros元功能包的实现"></a>ros元功能包的实现</h2><pre><code class="markdown">cmake_minimum_required(VERSION 3.0.2)
+project(my_package)
+find_package(catkin REQUIRED)
+catkin_metapackage()
+</code></pre>
+<pre><code class="xml">&lt;exec_depend&gt;plubming_pubsub&lt;/exec_depend&gt;
+&lt;exec_depend&gt;plubming_server_client&lt;/exec_depend&gt;
+
+&lt;export&gt;
+  &lt;!-- Other tools can request additional information be placed here --&gt;
+  &lt;metapackage /&gt;
+&lt;/export&gt;
+</code></pre>
+<h2 id="launch文件"><a href="#launch文件" class="headerlink" title="launch文件"></a>launch文件</h2><p>launch文件</p>
+<p>用于启动多个节点，利用launch文件提高效率</p>
+<h3 id="launch标签"><a href="#launch标签" class="headerlink" title="launch标签"></a>launch标签</h3><p>所有的标签都是在<launch>下的根标签</p>
+<ul>
+<li><p>launch</p>
+<pre><code class="xml">&lt;launch deprecated=&quot;notification&quot;&gt;
+
+&lt;/launch&gt;
+</code></pre>
+</li>
+<li><p>node</p>
+<pre><code class="xml">pkg=&quot;package_name&quot;
+type=&quot;executable file&quot;
+name=&quot;name of node&quot;
+args=&quot;&quot;
+machine=&quot;name of machine&quot;
+respawn=&quot;true/false&quot;
+required=&quot;true/false&quot;
+ns=&quot;namespace&quot;
+clear_params=&quot;true/false&quot;
+output=&quot;log/screen&quot;
+</code></pre>
+</li>
+<li><p>include</p>
+<pre><code class="xml">&lt;include file=&quot;&quot; ns=&quot;&quot; /&gt;
+</code></pre>
+</li>
+<li><p>remap</p>
+<pre><code class="xml">&lt;node pkg=&quot;turtlesim&quot; type=&quot;turtlesim_node&quot; name=&quot;my_turtle&quot; output=&quot;screen&quot;/&gt;
+    &lt;remap from=&quot;/turtle1/cmd_vel&quot; to=&quot;/cmd_vel&quot;/&gt;
+&lt;/node&gt;
+</code></pre>
+</li>
+<li><p>param</p>
+<pre><code class="xml">name=&quot;namespace&quot;
+value=&quot;value&quot;
+type=&quot;data type&quot;
+&lt;param name=&quot;param_node&quot; type=&quot;double&quot; value=&quot;1.09&quot;/&gt;
+</code></pre>
+</li>
+<li><p>rosparam(先执行)</p>
+<pre><code class="xml">command=&quot;load/dump/delete&quot;
+file=&quot;file path&quot;
+param=&quot;&quot;
+ns=&quot;namespace&quot;
+</code></pre>
+</li>
+<li><p>group</p>
+<pre><code class="xml">ns=&quot;namespace&quot;
+clear_params=&quot;true/false&quot;
+&lt;launch&gt;
+    &lt;group ns=&quot;turle1&quot;&gt;
+        
+    &lt;/group&gt;
+&lt;/launch&gt;
+</code></pre>
+</li>
+<li><p>arg</p>
+<pre><code class="xml">name=&quot;&quot;
+defalut=&quot;&quot;
+value=&quot;&quot;
+doc=&quot;&quot;
+</code></pre>
+</li>
+</ul>
+<h2 id="工作空间覆盖"><a href="#工作空间覆盖" class="headerlink" title="工作空间覆盖"></a>工作空间覆盖</h2><p>可能不同自定义工作空间之间或者自定义工作空间与内置空间中的功能包实现重名。在功能包重名的时候，source的时候谁在后面加入环境变量，则调用谁的包</p>
+<pre><code class="bash">echo $ROS_PACKAGE_PATH
+</code></pre>
+<p>应当尽量避免功能包重名</p>
+<p>处理策略：</p>
+
+            
+        </div>
+    </div>
+
+    <div class="post-tags">
+        
+        <span class="icon">
+            <a-icon type="tags" theme="filled" />
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="/Wiki/tags/ROS" style=color:#ffa2c4>
+                ROS
+            </a>
+        </span>
+        
+    </div>
+
+    <a href="/Wiki/2022/12/02/ROS-Manager/ " class="go-post">
+        阅读全文
+    </a>
+</div>
+
+<div class="post">
+
+    <a href="/Wiki/2022/12/02/ROS-Environment/">
+        <h2>
+            ROS_Environment
+        </h2>
+    </a>
+
+    <div class="category-and-date">
+
+        
+        <span class="category">
+            <a href="/Wiki/categories/Notes">
+                <span class="icon">
+                    <a-icon type="book" theme="filled" /></span>
+                Notes
+            </a>
+        </span>
+        
+
+        <span class="date">
+            <span class="icon">
+                <a-icon type="calendar" theme="filled" />
+            </span>
+            2022/12/2
+        </span>
+
+    </div>
+
+    <div class="excerpt">
+        <div class="content" v-pre>
+            
+            
+            <h1 id="ROS概述与环境搭建"><a href="#ROS概述与环境搭建" class="headerlink" title="ROS概述与环境搭建"></a>ROS概述与环境搭建</h1><h2 id="HelloWorld的实现"><a href="#HelloWorld的实现" class="headerlink" title="HelloWorld的实现"></a>HelloWorld的实现</h2><pre><code class="bash">$ mkdir -p ros_learn/src
+$ cd ros_learn
+$ catkin_make
+</code></pre>
+<p>创建功能包：</p>
+<pre><code class="bash">catkin_create_pkg helloworld roscpp rospy std_msgs
+</code></pre>
+<p>py运行效率低，代码效率高而cpp代码效率低，运行效率高。</p>
+<ul>
+<li><p>helloworld_c.cpp</p>
+<pre><code class="cpp">#include &quot;ros/ros.h&quot;
+
+int main(int argc,char *argv[])&#123;
+    //node init
+    ros::init(argc,argv,&quot;hello_node&quot;);
+
+    //ros log
+    ROS_INFO(&quot;hello world&quot;);
+
+    //return 
+    retur
+</code></pre>
+</li>
+<li><p>CmakeList.txt</p>
+<pre><code class="cpp">add_executable(helloworld_c src/helloworld_c.cpp)
+
+target_link_libraries(helloworld_c
+  $&#123;catkin_LIBRARIES&#125;
+)
+</code></pre>
+</li>
+</ul>
+<p>将该工作空间加入环境变量：</p>
+<pre><code class="bash">source devel/setup.bash
+roscore
+
+//another terminal
+rosrun helloworld helloworld_c
+</code></pre>
+<h2 id="集成开发环境"><a href="#集成开发环境" class="headerlink" title="集成开发环境"></a>集成开发环境</h2><h3 id="安装终端terminator"><a href="#安装终端terminator" class="headerlink" title="安装终端terminator"></a>安装终端terminator</h3><pre><code class="bash">sudo apt install terminator
+</code></pre>
+<h3 id="vscode插件使用"><a href="#vscode插件使用" class="headerlink" title="vscode插件使用"></a>vscode插件使用</h3><pre><code class="json">//ctrl+shift+B-----------编译
+
+//task.json配置
+
+&#123;
+    &quot;version&quot;: &quot;2.0.0&quot;,
+    &quot;tasks&quot;: [
+        &#123;
+            &quot;label&quot;: &quot;catkin_make:debug&quot;,
+            &quot;type&quot;: &quot;shell&quot;,
+            &quot;command&quot;: &quot;catkin_make&quot;,
+            &quot;args&quot;: [],
+            &quot;problemMatcher&quot;: &quot;$msCompile&quot;,
+            &quot;group&quot;: &#123;&quot;kind&quot;:&quot;build&quot;,&quot;isDefault&quot;:true&#125;,
+            &quot;presentation&quot;: &#123;
+                &quot;reveal&quot;: &quot;always&quot;,
+            &#125;
+        &#125;
+    ]
+&#125;
+</code></pre>
+<h3 id="launch文件"><a href="#launch文件" class="headerlink" title="launch文件"></a>launch文件</h3><p>ros使用期间可能需要启动多个节点，因此使用launch文件来实现</p>
+<ul>
+<li>选定功能包—→添加launch文件夹</li>
+<li>添加launch文件</li>
+<li>编辑launch文件</li>
+</ul>
+<p>基本使用</p>
+<pre><code class="xml">&lt;launch&gt;
+    &lt;!--add node--&gt;
+    &lt;!--turtle gui--&gt;
+    &lt;node pkg=&quot;turtlesim&quot; type=&quot;turtlesim_node&quot; name=&quot;turtle_gui&quot;/&gt;
+    &lt;node pkg=&quot;turtlesim&quot; type=&quot;turtle_teleop_key&quot; name=&quot;turtle_key&quot;/&gt;
+    &lt;node pkg=&quot;hello_vscode&quot; type=&quot;hello_vscode_c&quot; name=&quot;hello_vscode&quot; output=&quot;screen&quot;/&gt;
+
+&lt;/launch&gt;
+</code></pre>
+<h2 id="ROS架构"><a href="#ROS架构" class="headerlink" title="ROS架构"></a>ROS架构</h2><p>立足维护者的角度，ROS架构可分为两个部分</p>
+<ul>
+<li>main：核心部分，主要由Garage和一些开发者设计、提供和维护。提供了分布式计算的基本工具以及ROS的核心部分的程序编写</li>
+<li>universe：全球范围的代码，由不同国家的ROS社区开发和维护。一种是库的代码，最上层的代码是应用级别，让机器人完成一定的功能。</li>
+</ul>
+<p>ROS自身结构</p>
+<ul>
+<li>文件系统：ROS文件在硬盘上面查看的ROS源码的组织形式。</li>
+<li>计算图：ROS分布式系统，理解节点之间的关系</li>
+<li>开源社区</li>
+</ul>
+<h2 id="ROS文件系统"><a href="#ROS文件系统" class="headerlink" title="ROS文件系统"></a>ROS文件系统</h2><p><img src="/Wiki/2022/12/02/ROS-Environment/ros_file.png" alt="file structure"></p>
+<h3 id="package-xml"><a href="#package-xml" class="headerlink" title="package.xml"></a>package.xml</h3><p>定义包含属性、作者、邮箱等内容，同时含有功能包的依赖</p>
+<pre><code class="xml">build_depend----------------建立依赖
+buiild_export_depend--------导出外部
+exec_depend-----------------执行依赖
+</code></pre>
+<h3 id="ROS文件系统相关命令"><a href="#ROS文件系统相关命令" class="headerlink" title="ROS文件系统相关命令"></a>ROS文件系统相关命令</h3><pre><code class="bash">roscore
+    -ros master
+    -ros parameter server
+  -ros log node
+
+roscore -p xxxxx
+
+sudo apt install xxxxx
+
+sudo apt purge xxxxx
+
+rospack list
+rospack find
+roscd xxx
+rosis xxx
+apt search xxx
+
+rosed [package] [filename]
+</code></pre>
+<h2 id="ROS计算图"><a href="#ROS计算图" class="headerlink" title="ROS计算图"></a>ROS计算图</h2><p>ros运行之后，不同节点之间是错综复杂的，rqt_graph能够创建一个显示当前系统运行情况的动态图形。</p>
+<pre><code class="bash">rosrun rqt_graph rqt_graph
+</code></pre>
+
+            
+        </div>
+    </div>
+
+    <div class="post-tags">
+        
+        <span class="icon">
+            <a-icon type="tags" theme="filled" />
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="/Wiki/tags/ROS" style=color:#03a9f4>
+                ROS
+            </a>
+        </span>
+        
+    </div>
+
+    <a href="/Wiki/2022/12/02/ROS-Environment/ " class="go-post">
+        阅读全文
+    </a>
+</div>
+
+<div class="post">
+
+    <a href="/Wiki/2022/12/02/ROS-Components/">
+        <h2>
+            ROS_Component
+        </h2>
+    </a>
+
+    <div class="category-and-date">
+
+        
+        <span class="category">
+            <a href="/Wiki/categories/Notes">
+                <span class="icon">
+                    <a-icon type="book" theme="filled" /></span>
+                Notes
+            </a>
+        </span>
+        
+
+        <span class="date">
+            <span class="icon">
+                <a-icon type="calendar" theme="filled" />
+            </span>
+            2022/12/2
+        </span>
+
+    </div>
+
+    <div class="excerpt">
+        <div class="content" v-pre>
+            
+            
+            <h1 id="ROS常用组件"><a href="#ROS常用组件" class="headerlink" title="ROS常用组件"></a>ROS常用组件</h1><h2 id="TF坐标变换"><a href="#TF坐标变换" class="headerlink" title="TF坐标变换"></a>TF坐标变换</h2><p>tf2_geometry_msgs</p>
+<p>tf2</p>
+<p>tf2_ros</p>
+<pre><code class="cpp">#include &quot;ros/ros.h&quot;
+#include &quot;tf2_ros/static_transform_broadcaster.h&quot;
+#include &quot;geometry_msgs/TransformStamped.h&quot;
+#include &quot;tf2/LinearMath/Quaternion.h&quot;
+int main(int argc, char *argv[])
+&#123;
+    ros::init(argc,argv,&quot;tf2_static_pub&quot;);
+    ros::NodeHandle n;
+    tf2_ros::StaticTransformBroadcaster static_pub;
+    
+    geometry_msgs::TransformStamped tfs;
+    tfs.header.stamp = ros::Time::now();
+    tfs.header.frame_id = &quot;base_link&quot;;
+    tfs.child_frame_id  = &quot;laser&quot;;
+    tfs.transform.translation.x = 0.2;
+    tfs.transform.translation.y = 0.0;
+    tfs.transform.translation.z = 0.5;
+    //euler angle
+    tf2::Quaternion qtn;
+    qtn.setRPY(0.0,0.0,0.0);
+    tfs.transform.rotation.x = qtn.getX();
+    tfs.transform.rotation.y = qtn.getY();
+    tfs.transform.rotation.z = qtn.getZ();
+    tfs.transform.rotation.w = qtn.getW();
+
+    static_pub.sendTransform(tfs);
+    ros::spin();
+    /* code */
+    return 0;
+&#125;
+</code></pre>
+<pre><code class="cpp">#include &quot;ros/ros.h&quot;
+#include &quot;tf2_ros/transform_listener.h&quot;
+#include &quot;tf2_ros/buffer.h&quot;
+#include &quot;geometry_msgs/PointStamped.h&quot;
+#include &quot;tf2_geometry_msgs/tf2_geometry_msgs.h&quot;
+int main(int argc, char *argv[])
+&#123;
+    ros::init(argc,argv,&quot;tf2_static_sub&quot;);
+    ros::NodeHandle n;
+    tf2_ros::Buffer buff;
+    tf2_ros::TransformListener listener(buff);
+    geometry_msgs::PointStamped point;
+    point.header.frame_id = &quot;laser&quot;;
+    point.header.stamp = ros::Time::now();
+    point.point.x = 2.0;
+    point.point.y = 3.0;
+    point.point.z = 5.0;
+    ros::Rate rate(10);
+    ros::Duration(1).sleep();
+    while(ros::ok())
+    &#123;
+        
+        geometry_msgs::PointStamped point_out;
+
+        point_out = buff.transform(point,&quot;base_link&quot;);
+
+        ROS_INFO(&quot;point:(%.2f,%.2f,%.2f)&quot;,point_out.point.x,point_out.point.y,point_out.point.z);
+        rate.sleep();
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<h2 id="ROSBAG"><a href="#ROSBAG" class="headerlink" title="ROSBAG"></a>ROSBAG</h2><h2 id="RQT"><a href="#RQT" class="headerlink" title="RQT"></a>RQT</h2>
+            
+        </div>
+    </div>
+
+    <div class="post-tags">
+        
+        <span class="icon">
+            <a-icon type="tags" theme="filled" />
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="/Wiki/tags/ROS" style=color:#00a596>
+                ROS
+            </a>
+        </span>
+        
+    </div>
+
+    <a href="/Wiki/2022/12/02/ROS-Components/ " class="go-post">
+        阅读全文
+    </a>
+</div>
+
+<div class="post">
+
+    <a href="/Wiki/2022/12/02/ROS-API/">
+        <h2>
+            ROS_API
+        </h2>
+    </a>
+
+    <div class="category-and-date">
+
+        
+        <span class="category">
+            <a href="/Wiki/categories/notes">
+                <span class="icon">
+                    <a-icon type="book" theme="filled" /></span>
+                notes
+            </a>
+        </span>
+        
+
+        <span class="date">
+            <span class="icon">
+                <a-icon type="calendar" theme="filled" />
+            </span>
+            2022/12/2
+        </span>
+
+    </div>
+
+    <div class="excerpt">
+        <div class="content" v-pre>
+            
+            
+            <h1 id="ROS-API"><a href="#ROS-API" class="headerlink" title="ROS API"></a>ROS API</h1><h2 id="ros-init-argc-argv-”name”-options"><a href="#ros-init-argc-argv-”name”-options" class="headerlink" title="ros::init(argc,argv,”name”,options);"></a>ros::init(argc,argv,”name”,options);</h2><ul>
+<li>argc : number of parameter</li>
+<li>argv : parameter</li>
+<li>name : name of node</li>
+<li>options : options(ros::init_options::AnonymousName)</li>
+</ul>
+<h2 id="NodeHandle-advertise-”topic-name”-length-latch"><a href="#NodeHandle-advertise-”topic-name”-length-latch" class="headerlink" title="NodeHandle.advertise(”topic name”,length,latch);"></a>NodeHandle.advertise<type>(”topic name”,length,latch);</h2><ul>
+<li>latch : if latch is true, data can be sent only once</li>
+</ul>
+<h2 id="ros-spin-x2F-ros-spinOnce"><a href="#ros-spin-x2F-ros-spinOnce" class="headerlink" title="ros::spin()&#x2F;ros::spinOnce()"></a>ros::spin()&#x2F;ros::spinOnce()</h2><h2 id="ros-Time"><a href="#ros-Time" class="headerlink" title="ros::Time"></a>ros::Time</h2><ul>
+<li><p>get currenti time</p>
+<ul>
+<li>1970.1.1 00:00:00:🕛</li>
+</ul>
+<pre><code class="cpp">ros::Time right_now = ros::Time::now();
+double sec = right_now.toSec();
+uint32_t sec_uint = right_now.sec;
+</code></pre>
+</li>
+<li><p>set time</p>
+<pre><code class="cpp">ros::Time t(2,0.31);
+ros::Time t(10.35);
+</code></pre>
+</li>
+<li><p>time duration</p>
+<pre><code class="cpp">ros::Duration duration(4.5);
+duration.sleep();
+</code></pre>
+</li>
+<li><p>timer</p>
+<pre><code class="cpp">ros::Timer = n.createTimer();
+//parameter:duration,callback,oneshot,autostart
+</code></pre>
+</li>
+</ul>
+
+            
+        </div>
+    </div>
+
+    <div class="post-tags">
+        
+        <span class="icon">
+            <a-icon type="tags" theme="filled" />
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="/Wiki/tags/ROS" style=color:#00bcd4>
+                ROS
+            </a>
+        </span>
+        
+    </div>
+
+    <a href="/Wiki/2022/12/02/ROS-API/ " class="go-post">
+        阅读全文
+    </a>
+</div>
+
+<div class="post">
+
     <a href="/Wiki/2022/12/02/Manipulator-Simulation/">
         <h2>
             Manuplator-Simulation

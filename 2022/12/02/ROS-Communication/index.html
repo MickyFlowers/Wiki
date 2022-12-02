@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>❀ || Manuplator-Simulation</title>
+    <title>❀ || ROS_Communication</title>
     <meta name="author" content="yx-Chen">
     <meta name="description" content="About Life, RoboMaster,and ... ">
     <meta name="keywords" content=" ">
@@ -137,7 +137,7 @@
 <link rel="stylesheet" href="/Wiki/css/post-body.css">
 <div class="article">
     <div>
-        <h1>Manuplator-Simulation </h1>
+        <h1>ROS_Communication </h1>
     </div>
     <div class="info">
         <span class="date">
@@ -149,11 +149,11 @@
 
         
         <span class="category">
-            <a href="/Wiki/categories/RoboMaster">
+            <a href="/Wiki/categories/Notes">
                 <span class="icon">
                     <a-icon type="book" theme="filled" />
                 </span>
-                RoboMaster
+                Notes
             </a>
         </span>
         
@@ -167,8 +167,8 @@
             
             <span class="tag">
                 
-                <a href="/Wiki/tags/report" style=color:#ffa2c4>
-                    report
+                <a href="/Wiki/tags/ROS" style=color:#ff7d73>
+                    ROS
                 </a>
             </span>
             
@@ -177,72 +177,262 @@
     </div>
 
     <div class="content" v-pre>
-        <h1 id="六轴机械臂仿真"><a href="#六轴机械臂仿真" class="headerlink" title="六轴机械臂仿真"></a>六轴机械臂仿真</h1><h2 id="1简介"><a href="#1简介" class="headerlink" title="1	简介"></a>1	简介</h2><ul>
-<li><p>在六轴机械臂的研发中，需要对机械臂关节电机的力矩进行选型。在绘制出简要的机械模型后，基于<code>Simulink/Simscape</code>进行模型仿真，根据关节力矩对电机&#x2F;减速器进行选型</p>
-</li>
-<li><p>本次仿真有较大的局限性：</p>
+        <h1 id="ROS通信机制"><a href="#ROS通信机制" class="headerlink" title="ROS通信机制"></a>ROS通信机制</h1><p>ROS是进程分布式框架，因为进程甚至可以分布于不同的主句，协同工作从而分散计算压力，因此需要介绍ROS的通信机制</p>
 <ul>
-<li>逆运动学解算与<code>Simscape Multibody</code>仿真分离</li>
-<li>单次仿真步长为<code>0.001s</code>，仿真总时间为10s，并未做到循环仿真</li>
-<li>控制器为简单的<code>双环PID</code>，参数未细调</li>
+<li>话题通信（发布订阅）</li>
+<li>服务通信（请求响应模式）</li>
+<li>参数服务器通信（参数共享模式）</li>
 </ul>
-</li>
-<li><p>仿真模型与结果仅供参考</p>
-</li>
+<h2 id="话题通信"><a href="#话题通信" class="headerlink" title="话题通信"></a>话题通信</h2><p>基于发布订阅模式，一个节点发布消息，另一个节点订阅消息，适用于不断更新的数据传输相关的应用场景</p>
+<ul>
+<li>master 管理和匹配话题</li>
+<li>talker 发布者</li>
+<li>listener 订阅者</li>
 </ul>
-<h2 id="2文件结构"><a href="#2文件结构" class="headerlink" title="2	文件结构"></a>2	文件结构</h2><pre><code>.\
-│  CMakeLists.txt				#cmake文件
-│  package.xml					#包依赖说明文件
-│  robot_show.m					#导入并显示机器人模型，输入目标点坐标-姿态
-│  robot_hand_SLDASM.slxc		#Simulink缓存包
-│  ikSolver.slxc				#Simulink缓存包
-│  ikSolver.slx					#逆运动学解算-simulink
-│  robot_hand_SLDASM.slx		#仿真模型-simulink
-│
-├─config  						#配置文件-ROS
-├─launch						#launch文件-ROS
-├─meshes						#模型材料/颜色说明
-├─urdf							#urdf模型文件夹
-├─textures
-├─image							#image in docA
-├─CFL_Core						#Matlab附加功能：Simscape Contact Force Library
-└─slprj							#CFL工程文件夹
+<pre><code class="cpp">//publisher
+#include &quot;ros/ros.h&quot;
+#include &quot;std_msgs/String.h&quot;
+
+int main(int argc ,char* argv[])
+&#123;
+    //ros init
+    ros::init(argc,argv,&quot;publisher&quot;);
+
+    //create node handler
+    ros::NodeHandle n;
+    //publisher object
+    ros::Publisher pub=n.advertise&lt;std_msgs::String&gt;(&quot;topic&quot;,10);
+    //publish logic
+    std_msgs::String msg;
+    //frequency
+    ros::Rate rate(10);
+    while(ros::ok())
+    &#123;
+        
+        msg.data= &quot;hello&quot;;
+        pub.publish(msg);
+        rate.sleep();
+    &#125;
+
+    return 0;
+&#125;
 </code></pre>
-<p><code>slprj</code>文件夹说明：[<code>slprj folder</code>](<a target="_blank" rel="noopener" href="https://www.ilovematlab.cn/thread-214871-1-1.html">slprj文件夹 – MATLAB中文论坛 (ilovematlab.cn)</a>)</p>
-<h2 id="3环境配置"><a href="#3环境配置" class="headerlink" title="3	环境配置"></a>3	环境配置</h2><h3 id="Matlab-Simscape-Contact-Force-Library安装"><a href="#Matlab-Simscape-Contact-Force-Library安装" class="headerlink" title="Matlab Simscape Contact Force Library安装"></a>Matlab Simscape Contact Force Library安装</h3><p>Matlab Simscape Contact Force Library 库是Matlab中的附加功能，在Simscape Multibody仿真中定义物体之间的碰撞力，该库目前对于3D仿真只支持以下几种模型，因此并不能完全定义物体的任一表面，因此在仿真时可对其进行简化。<a target="_blank" rel="noopener" href="https://ww2.mathworks.cn/matlabcentral/fileexchange/47417-simscape-multibody-contact-forces-library?s_tid=srchtitle">MathWorks文档</a></p>
-<p><img src="/Wiki/2022/12/02/Manipulator-Simulation/3d_library.jpg" alt="3d_library"></p>
-<p>在Matlab Simscape Contact Force Library中选择对应Matlab的版本（本次仿真为R2022a）进行下载，将解压后文件夹中的<code>CFL_Core</code>文件夹放入工作空间中即可使用。</p>
-<p>除此之外Matlab所下载的附加功能包默认存放在<code>C:\Users\UserName\AppData\Roaming\MathWorks\MATLAB Add-Ons\Collections</code>当中</p>
-<h3 id="其他安装"><a href="#其他安装" class="headerlink" title="其他安装"></a>其他安装</h3><ul>
-<li>Simulink&#x2F;Simscape</li>
-<li>Simscape Multibody</li>
-<li>Robotic System Toolbox</li>
-</ul>
-<h2 id="4仿真说明"><a href="#4仿真说明" class="headerlink" title="4	仿真说明"></a>4	仿真说明</h2><h3 id="仿真运行"><a href="#仿真运行" class="headerlink" title="仿真运行"></a>仿真运行</h3><p>运行仿真的文件为<code>./IkSolver.slx</code>,<code>./robot_hand_SLDASM.slx</code>以及<code>robot_show.m</code>文件</p>
-<ul>
-<li>首先运行<code>robot_show.m</code>文件，输入你期望达到的末端坐标<code>[x,y,z]</code>（姿态同样可以进行给定，由于末端坐标系与世界坐标系在初始位置并非重合，因此设为定值），如需要可在程序中进行修改。同时该段程序会将solidworks生成的urdf模型导入Matlab并且在三维坐标系中显示出来。</li>
-<li>在<code>robot_show.m</code>文件中，会在导入机器人模型后，根据所输入的坐标进行逆运动学解算，程序中会自主运行<code>ikSolver.slx</code>的Simulink文件，将逆运动学得到的结果存储在工作空间的<code>Configs</code>变量中。该变量的属性为<code>Timeseries</code>，可在工作空间打开查看，使用<code>Configs.Data</code>来对数据进行索引。</li>
-<li>最终运行<code>robot_hand_SLDASM.slx</code>的Simulink文件，将会进行仿真，仿真时间为10s，仿真步长为0.001s</li>
-<li>仿真模型的起始位置为上一次运行<code>robot_show.m</code>文件所输入的目标点位置，即多次仿真之间存在连续性。</li>
-</ul>
-<h3 id="仿真模型搭建"><a href="#仿真模型搭建" class="headerlink" title="仿真模型搭建"></a>仿真模型搭建</h3><p>仿真的主要模型在<code>robot_hand_SLDASM.slx</code>当中，包含了建模与可视化，碰撞检测和控制。</p>
-<h4 id="a建模与可视化"><a href="#a建模与可视化" class="headerlink" title="a	建模与可视化"></a>a	建模与可视化</h4><p>在Simulink中可根据urdf生成Multibody模型，将urdf与meshes加入Matlab路径，运行代码</p>
-<pre><code class="matlab">smimport(&#39;./path/filename.urdf&#39;)
+<pre><code class="cpp">//subscriber
+#include &quot;ros/ros.h&quot;
+#include &quot;std_msgs/String.h&quot;
+
+void MsgCallback(const std_msgs::String::ConstPtr &amp;msg)&#123;
+
+    ROS_INFO(&quot;topic data:%s&quot;,msg-&gt;data.c_str());
+
+&#125;
+
+int main(int argc,char *argv[])
+&#123;
+    //ros init
+    ros::init(argc,argv,&quot;sub&quot;);
+    //ros handler
+    ros::NodeHandle n;
+    //subsriber create
+    ros::Subscriber sub = n.subscribe(&quot;topic&quot;,10,MsgCallback);
+
+    ros::spin();
+    return 0;
+&#125;
 </code></pre>
-<p><a target="_blank" rel="noopener" href="https://ww2.mathworks.cn/help/sm/ref/revolutejoint.html">Joint with one revolute primitive - MATLAB - MathWorks 中国</a></p>
-<p>除此之外，在可能碰撞的末端加入了简易的Contact Force碰撞检测，为<code>base_link</code>与<code>joint4``joint5</code>的碰撞检测，可在<code>Mechanics Explorer</code>仿真界面中进行查看</p>
-<ul>
-<li>由于本次仿真仅仿真关节大致的关节力矩，因此是否加入Contact Force对仿真结果无影响</li>
-</ul>
-<h4 id="b控制"><a href="#b控制" class="headerlink" title="b	控制"></a>b	控制</h4><p><code>revolute joint</code>可以显示当前关节的角度、速度与力矩，并且可根据输入力矩对关节进行控制。仿真中封装了<code>Double Loop PID block</code>对角度进行控制，对于每一个关节的参数可自行调节</p>
-<p>关节的输入量通过<code>from workspace block</code>从工作空间读取（此处读取为时序信号，已在<code>robot_show.m</code>模块中进行转化）。为保证机械臂的稳定性，输入信号并非阶跃信号而是经过解算的斜坡函数。同时在10s的仿真中，设定运动时间为前3s。</p>
-<p>若将PID产生的控制信号直接输入关节力矩会产生代数环问题，即你的输入信号由输出信号决定，而输出信号又决定了输入信号。因此在输出信号端增加一阶保持器，来仿真实际的控制情况。</p>
-<p><img src="/Wiki/2022/12/02/Manipulator-Simulation/torque2.png"></p>
-<p><img src="/Wiki/2022/12/02/Manipulator-Simulation/torque3.png" alt="image-20221201150745469"></p>
-<p><img src="/Wiki/2022/12/02/Manipulator-Simulation/torque4.png" alt="image-20221201160434181"></p>
-<ul>
-<li>刚开始的超调为仿真环境中重力的影响，</li>
-</ul>
+<h2 id="自定义消息"><a href="#自定义消息" class="headerlink" title="自定义消息"></a>自定义消息</h2><p>以固定格式创建msg文件</p>
+<p>编辑配置文件</p>
+<p>编译生成可以被调用中间文件</p>
+<pre><code class="xml">&lt;build_depend&gt;message_generation&lt;/build_depend&gt;
+&lt;exec_depend&gt;message_runtime&lt;/exec_depend&gt;
+</code></pre>
+<pre><code class="makefile">find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  message_generation
+)
+
+add_message_files(
+  FILES
+  Person.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES plubming_pubsub
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+#  DEPENDS system_lib
+)
+</code></pre>
+<p>使用自定义的msg</p>
+<pre><code class="makefile">Person.msg
+
+string name
+int32 age
+float32 height
+</code></pre>
+<pre><code class="cpp">//pub self data
+#include &quot;ros/ros.h&quot;
+#include &quot;plubming_pubsub/Person.h&quot;
+
+int main(int argc,char *argv[])&#123;
+    
+
+    ros::init(argc,argv,&quot;pub_self&quot;);
+
+    ros::NodeHandle n;
+
+    ros::Publisher pub_self = n.advertise&lt;plubming_pubsub::Person&gt;(&quot;self_topic&quot;,10);
+
+    plubming_pubsub::Person person;
+    
+    person.name = &quot;Micky&quot;;
+    person.age = 22;
+    person.height = 1.80;
+
+    ros::Rate rate(1);
+
+    while(ros::ok())
+    &#123;
+        pub_self.publish(person);
+        rate.sleep();
+    &#125;
+    return 0;
+&#125;
+</code></pre>
+<pre><code class="cpp">//self data subscriber
+#include &quot;ros/ros.h&quot;
+#include &quot;plubming_pubsub/Person.h&quot;
+
+void selfMsgCallback(const plubming_pubsub::Person::ConstPtr &amp;msg)&#123;
+    
+    ROS_INFO(&quot;self data age is: %d&quot;,msg-&gt;age);
+    ROS_INFO(&quot;self date height is: %.3f&quot;,msg-&gt;height);
+    ROS_INFO(&quot;self data name is: %s&quot;,msg-&gt;name.c_str());
+&#125;
+int main(int argc,char *argv[])
+&#123;
+
+    ros::init(argc,argv,&quot;self_sub&quot;);
+    ros::NodeHandle n;
+    ros::Subscriber sub = n.subscribe(&quot;self_topic&quot;,10,selfMsgCallback);
+    ros::spin();
+    return 0;
+&#125;
+</code></pre>
+<h2 id="服务通信"><a href="#服务通信" class="headerlink" title="服务通信"></a>服务通信</h2><p>有一定实时性要求，并且由一定逻辑处理的应用场景</p>
+<p>自定义srv</p>
+<pre><code class="cpp">//request
+int32 num1
+int32 num2
+---
+//response
+int32 sum
+</code></pre>
+<pre><code class="cpp">add_service_files(
+  FILES
+  Addints.srv
+)
+
+add_dependencies(server $&#123;PROJECT_NAME&#125;_gencpp)
+add_dependencies(client $&#123;PROJECT_NAME&#125;_gencpp)
+</code></pre>
+<pre><code class="cpp">//client.cpp
+#include &quot;plubming_server_client/Addints.h&quot;
+#include &quot;ros/ros.h&quot;
+
+int main(int argc,char* argv[])
+&#123;
+    if(argc != 3)&#123;
+        ROS_INFO(&quot;failed&quot;);
+        return 1;
+    &#125;
+    ros::init(argc,argv,&quot;client&quot;);
+    ros::NodeHandle n;
+    ros::ServiceClient client = n.serviceClient&lt;plubming_server_client::Addints&gt;(&quot;addints&quot;);
+    //request
+    plubming_server_client::Addints add;
+    add.request.num1 = atoi(argv[1]);
+    add.request.num2 = atoi(argv[2]);
+    if (client.call(add))
+    &#123;
+        ROS_INFO(&quot;success&quot;);
+        ROS_INFO(&quot;result = %d&quot;,add.response.sum);
+    &#125;
+    else ROS_INFO(&quot;failed&quot;);
+
+    return 0;
+&#125;
+</code></pre>
+<h2 id="参数服务器"><a href="#参数服务器" class="headerlink" title="参数服务器"></a>参数服务器</h2><p>存储多节点共享的数据，但是并不是为高性能而设计的，因此可以储存一些静态的全局变量</p>
+<pre><code class="cpp">#include &quot;ros/ros.h&quot;
+
+int main(int argc ,char **argv)
+&#123;
+    ros::init(argc,argv,&quot;param_server&quot;);
+    ros::NodeHandle n;
+    //add parameter
+
+    n.setParam(&quot;type&quot;,&quot;xiaohuang&quot;);
+    n.setParam(&quot;radius&quot;,0.15);
+
+    if(n.deleteParam(&quot;type&quot;)) ROS_INFO(&quot;delete success&quot;);
+    else ROS_INFO(&quot;delete failed&quot;);
+    return 0;
+&#125;
+</code></pre>
+<pre><code class="cpp">add_executable(param_server src/param_server.cpp)
+
+target_link_libraries(param_server
+  $&#123;catkin_LIBRARIES&#125;
+)
+</code></pre>
+<pre><code class="cpp">rosparam list
+rosparam get xxx
+</code></pre>
+<p>参数查询</p>
+<pre><code class="cpp">#include &quot;ros/ros.h&quot;
+
+int main(int argc,char** argv)
+&#123;
+
+    ros::init(argc,argv,&quot;param_get&quot;);
+    ros::NodeHandle n;
+
+    //getParamCached
+    double radius = 0;
+    if(n.getParamCached(&quot;radius&quot;,radius))
+    &#123;
+        ROS_INFO(&quot;radius is :%.2f&quot;,radius);
+    &#125;
+    else ROS_INFO(&quot;failed&quot;);
+
+    //getParaNames
+    std::vector&lt;std::string&gt; names;
+    n.getParamNames(names);
+    for (auto &amp;&amp;name:names)
+    &#123;
+        ROS_INFO(&quot;element:%s&quot;,name.c_str());
+    &#125;
+
+    //hasParam
+    bool flag1 = n.hasParam(&quot;radius&quot;);
+    bool flag2 = n.hasParam(&quot;radius fault&quot;);
+    ROS_INFO(&quot;flag1:%d&quot;,flag1);
+    ROS_INFO(&quot;flag2:%d&quot;,flag2);
+
+    std::string key;
+    n.searchParam(&quot;radius&quot;,key);
+    ROS_INFO(&quot;search result %s&quot;,key);
+    return 0;
+&#125;
+</code></pre>
 
     </div>
 

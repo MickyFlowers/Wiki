@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>❀ || RoboMaster</title>
+    <title>❀ || ROS_Environment</title>
     <meta name="author" content="yx-Chen">
     <meta name="description" content="About Life, RoboMaster,and ... ">
     <meta name="keywords" content=" ">
@@ -134,88 +134,176 @@
 
                 <div id="main">
                      
-<div class="categories-tags">
-    
-    <div class="all-s">
-        
-        
-        <span>
-            <a href="/Wiki/categories/RoboMaster/" style='background:linear-gradient(120deg, #9abbf7 0%, #ffbbf4 100%)'>
-                <span class="icon">
-                    <a-icon type="book" theme="filled" /></span>
-                RoboMaster
-            </a>
+<link rel="stylesheet" href="/Wiki/css/post-body.css">
+<div class="article">
+    <div>
+        <h1>ROS_Environment </h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <a-icon type="calendar" theme="filled" />
+            </span>
+            2022/12/2
         </span>
+
         
-        
-        
-        <span>
-            <a href="/Wiki/categories/notes/" style=background:#00bcd4>
+        <span class="category">
+            <a href="/Wiki/categories/Notes">
                 <span class="icon">
-                    <a-icon type="book" theme="filled" /></span>
-                notes
-            </a>
-        </span>
-        
-        
-        
-        <span>
-            <a href="/Wiki/categories/Notes/" style=background:#03a9f4>
-                <span class="icon">
-                    <a-icon type="book" theme="filled" /></span>
+                    <a-icon type="book" theme="filled" />
+                </span>
                 Notes
             </a>
         </span>
         
-        
-    </div>
-    <div id="archives">
-        
-        <a-timeline>
-            <a-timeline-item timestamp="2022/12/2" placement="top" color="#a5c2f5">
-                <a-card hoverable>
-                    <div class="item-time">2022/12/2</div>
-                    <a href="/Wiki/2022/12/02/Manipulator-Simulation/">
-                        <h3>Manuplator-Simulation</h3>
-                    </a>
-                    <div class="info">
-                        
-                        <span class="category">
-                            <a href="/Wiki/categories/RoboMaster">
-                                <span class="icon">
-                                    <a-icon type="book" theme="filled" />
-                                </span>
-                                RoboMaster
-                            </a>
-                        </span>
-                        
 
-                        
-                        <span class="tags">
-                            <span class="icon">
-                                <a-icon type="tags" />
-                            </span>
-                            
-                            <span class="tag">
-                                
-                                <a href="/Wiki/tags/report" style=color:#00bcd4>
-                                    report
-                                </a>
-                            </span>
-                            
-                        </span>
-                        
-                    </div>
-                </a-card>
-            </a-timeline-item>
-        </a-timeline>
+        
+
+        <span class="tags">
+            <span class="icon">
+                <a-icon type="tags" theme="filled" />
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/Wiki/tags/ROS" style=color:#00a596>
+                    ROS
+                </a>
+            </span>
+            
+        </span>
         
     </div>
-    <script>
-        new Vue({
-            el: '#archives'
-        })
-    </script>
+
+    <div class="content" v-pre>
+        <h1 id="ROS概述与环境搭建"><a href="#ROS概述与环境搭建" class="headerlink" title="ROS概述与环境搭建"></a>ROS概述与环境搭建</h1><h2 id="HelloWorld的实现"><a href="#HelloWorld的实现" class="headerlink" title="HelloWorld的实现"></a>HelloWorld的实现</h2><pre><code class="bash">$ mkdir -p ros_learn/src
+$ cd ros_learn
+$ catkin_make
+</code></pre>
+<p>创建功能包：</p>
+<pre><code class="bash">catkin_create_pkg helloworld roscpp rospy std_msgs
+</code></pre>
+<p>py运行效率低，代码效率高而cpp代码效率低，运行效率高。</p>
+<ul>
+<li><p>helloworld_c.cpp</p>
+<pre><code class="cpp">#include &quot;ros/ros.h&quot;
+
+int main(int argc,char *argv[])&#123;
+    //node init
+    ros::init(argc,argv,&quot;hello_node&quot;);
+
+    //ros log
+    ROS_INFO(&quot;hello world&quot;);
+
+    //return 
+    retur
+</code></pre>
+</li>
+<li><p>CmakeList.txt</p>
+<pre><code class="cpp">add_executable(helloworld_c src/helloworld_c.cpp)
+
+target_link_libraries(helloworld_c
+  $&#123;catkin_LIBRARIES&#125;
+)
+</code></pre>
+</li>
+</ul>
+<p>将该工作空间加入环境变量：</p>
+<pre><code class="bash">source devel/setup.bash
+roscore
+
+//another terminal
+rosrun helloworld helloworld_c
+</code></pre>
+<h2 id="集成开发环境"><a href="#集成开发环境" class="headerlink" title="集成开发环境"></a>集成开发环境</h2><h3 id="安装终端terminator"><a href="#安装终端terminator" class="headerlink" title="安装终端terminator"></a>安装终端terminator</h3><pre><code class="bash">sudo apt install terminator
+</code></pre>
+<h3 id="vscode插件使用"><a href="#vscode插件使用" class="headerlink" title="vscode插件使用"></a>vscode插件使用</h3><pre><code class="json">//ctrl+shift+B-----------编译
+
+//task.json配置
+
+&#123;
+    &quot;version&quot;: &quot;2.0.0&quot;,
+    &quot;tasks&quot;: [
+        &#123;
+            &quot;label&quot;: &quot;catkin_make:debug&quot;,
+            &quot;type&quot;: &quot;shell&quot;,
+            &quot;command&quot;: &quot;catkin_make&quot;,
+            &quot;args&quot;: [],
+            &quot;problemMatcher&quot;: &quot;$msCompile&quot;,
+            &quot;group&quot;: &#123;&quot;kind&quot;:&quot;build&quot;,&quot;isDefault&quot;:true&#125;,
+            &quot;presentation&quot;: &#123;
+                &quot;reveal&quot;: &quot;always&quot;,
+            &#125;
+        &#125;
+    ]
+&#125;
+</code></pre>
+<h3 id="launch文件"><a href="#launch文件" class="headerlink" title="launch文件"></a>launch文件</h3><p>ros使用期间可能需要启动多个节点，因此使用launch文件来实现</p>
+<ul>
+<li>选定功能包—→添加launch文件夹</li>
+<li>添加launch文件</li>
+<li>编辑launch文件</li>
+</ul>
+<p>基本使用</p>
+<pre><code class="xml">&lt;launch&gt;
+    &lt;!--add node--&gt;
+    &lt;!--turtle gui--&gt;
+    &lt;node pkg=&quot;turtlesim&quot; type=&quot;turtlesim_node&quot; name=&quot;turtle_gui&quot;/&gt;
+    &lt;node pkg=&quot;turtlesim&quot; type=&quot;turtle_teleop_key&quot; name=&quot;turtle_key&quot;/&gt;
+    &lt;node pkg=&quot;hello_vscode&quot; type=&quot;hello_vscode_c&quot; name=&quot;hello_vscode&quot; output=&quot;screen&quot;/&gt;
+
+&lt;/launch&gt;
+</code></pre>
+<h2 id="ROS架构"><a href="#ROS架构" class="headerlink" title="ROS架构"></a>ROS架构</h2><p>立足维护者的角度，ROS架构可分为两个部分</p>
+<ul>
+<li>main：核心部分，主要由Garage和一些开发者设计、提供和维护。提供了分布式计算的基本工具以及ROS的核心部分的程序编写</li>
+<li>universe：全球范围的代码，由不同国家的ROS社区开发和维护。一种是库的代码，最上层的代码是应用级别，让机器人完成一定的功能。</li>
+</ul>
+<p>ROS自身结构</p>
+<ul>
+<li>文件系统：ROS文件在硬盘上面查看的ROS源码的组织形式。</li>
+<li>计算图：ROS分布式系统，理解节点之间的关系</li>
+<li>开源社区</li>
+</ul>
+<h2 id="ROS文件系统"><a href="#ROS文件系统" class="headerlink" title="ROS文件系统"></a>ROS文件系统</h2><p><img src="/Wiki/2022/12/02/ROS-Environment/ros_file.png" alt="file structure"></p>
+<h3 id="package-xml"><a href="#package-xml" class="headerlink" title="package.xml"></a>package.xml</h3><p>定义包含属性、作者、邮箱等内容，同时含有功能包的依赖</p>
+<pre><code class="xml">build_depend----------------建立依赖
+buiild_export_depend--------导出外部
+exec_depend-----------------执行依赖
+</code></pre>
+<h3 id="ROS文件系统相关命令"><a href="#ROS文件系统相关命令" class="headerlink" title="ROS文件系统相关命令"></a>ROS文件系统相关命令</h3><pre><code class="bash">roscore
+    -ros master
+    -ros parameter server
+  -ros log node
+
+roscore -p xxxxx
+
+sudo apt install xxxxx
+
+sudo apt purge xxxxx
+
+rospack list
+rospack find
+roscd xxx
+rosis xxx
+apt search xxx
+
+rosed [package] [filename]
+</code></pre>
+<h2 id="ROS计算图"><a href="#ROS计算图" class="headerlink" title="ROS计算图"></a>ROS计算图</h2><p>ros运行之后，不同节点之间是错综复杂的，rqt_graph能够创建一个显示当前系统运行情况的动态图形。</p>
+<pre><code class="bash">rosrun rqt_graph rqt_graph
+</code></pre>
+
+    </div>
+
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+    <div id="comment">
+        <div id="gitalk-container">
+        </div>
+    </div>
+    
 </div>
                      
 <footer id="footer">
@@ -279,6 +367,21 @@
             }
         }
     })
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+        clientID: '',
+        clientSecret: '',
+        repo: 'MickyFlowers',      // The repository of store comments,
+        owner: 'MickyFlowers',
+        admin: ['MickyFlowers'],
+        language: 'en',
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: true  // Facebook-like distraction free mode
+    })
+    gitalk.render('gitalk-container')
 </script>
 
 </body>

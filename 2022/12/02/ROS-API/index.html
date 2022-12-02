@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>❀ || RoboMaster</title>
+    <title>❀ || ROS_API</title>
     <meta name="author" content="yx-Chen">
     <meta name="description" content="About Life, RoboMaster,and ... ">
     <meta name="keywords" content=" ">
@@ -134,88 +134,94 @@
 
                 <div id="main">
                      
-<div class="categories-tags">
-    
-    <div class="all-s">
-        
-        
-        <span>
-            <a href="/Wiki/categories/RoboMaster/" style='background:linear-gradient(120deg, #9abbf7 0%, #ffbbf4 100%)'>
-                <span class="icon">
-                    <a-icon type="book" theme="filled" /></span>
-                RoboMaster
-            </a>
+<link rel="stylesheet" href="/Wiki/css/post-body.css">
+<div class="article">
+    <div>
+        <h1>ROS_API </h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <a-icon type="calendar" theme="filled" />
+            </span>
+            2022/12/2
         </span>
+
         
-        
-        
-        <span>
-            <a href="/Wiki/categories/notes/" style=background:#00bcd4>
+        <span class="category">
+            <a href="/Wiki/categories/notes">
                 <span class="icon">
-                    <a-icon type="book" theme="filled" /></span>
+                    <a-icon type="book" theme="filled" />
+                </span>
                 notes
             </a>
         </span>
         
+
         
-        
-        <span>
-            <a href="/Wiki/categories/Notes/" style=background:#03a9f4>
-                <span class="icon">
-                    <a-icon type="book" theme="filled" /></span>
-                Notes
-            </a>
+
+        <span class="tags">
+            <span class="icon">
+                <a-icon type="tags" theme="filled" />
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/Wiki/tags/ROS" style=color:#00a596>
+                    ROS
+                </a>
+            </span>
+            
         </span>
         
-        
     </div>
-    <div id="archives">
-        
-        <a-timeline>
-            <a-timeline-item timestamp="2022/12/2" placement="top" color="#a5c2f5">
-                <a-card hoverable>
-                    <div class="item-time">2022/12/2</div>
-                    <a href="/Wiki/2022/12/02/Manipulator-Simulation/">
-                        <h3>Manuplator-Simulation</h3>
-                    </a>
-                    <div class="info">
-                        
-                        <span class="category">
-                            <a href="/Wiki/categories/RoboMaster">
-                                <span class="icon">
-                                    <a-icon type="book" theme="filled" />
-                                </span>
-                                RoboMaster
-                            </a>
-                        </span>
-                        
 
-                        
-                        <span class="tags">
-                            <span class="icon">
-                                <a-icon type="tags" />
-                            </span>
-                            
-                            <span class="tag">
-                                
-                                <a href="/Wiki/tags/report" style=color:#00bcd4>
-                                    report
-                                </a>
-                            </span>
-                            
-                        </span>
-                        
-                    </div>
-                </a-card>
-            </a-timeline-item>
-        </a-timeline>
-        
+    <div class="content" v-pre>
+        <h1 id="ROS-API"><a href="#ROS-API" class="headerlink" title="ROS API"></a>ROS API</h1><h2 id="ros-init-argc-argv-”name”-options"><a href="#ros-init-argc-argv-”name”-options" class="headerlink" title="ros::init(argc,argv,”name”,options);"></a>ros::init(argc,argv,”name”,options);</h2><ul>
+<li>argc : number of parameter</li>
+<li>argv : parameter</li>
+<li>name : name of node</li>
+<li>options : options(ros::init_options::AnonymousName)</li>
+</ul>
+<h2 id="NodeHandle-advertise-”topic-name”-length-latch"><a href="#NodeHandle-advertise-”topic-name”-length-latch" class="headerlink" title="NodeHandle.advertise(”topic name”,length,latch);"></a>NodeHandle.advertise<type>(”topic name”,length,latch);</h2><ul>
+<li>latch : if latch is true, data can be sent only once</li>
+</ul>
+<h2 id="ros-spin-x2F-ros-spinOnce"><a href="#ros-spin-x2F-ros-spinOnce" class="headerlink" title="ros::spin()&#x2F;ros::spinOnce()"></a>ros::spin()&#x2F;ros::spinOnce()</h2><h2 id="ros-Time"><a href="#ros-Time" class="headerlink" title="ros::Time"></a>ros::Time</h2><ul>
+<li><p>get currenti time</p>
+<ul>
+<li>1970.1.1 00:00:00:🕛</li>
+</ul>
+<pre><code class="cpp">ros::Time right_now = ros::Time::now();
+double sec = right_now.toSec();
+uint32_t sec_uint = right_now.sec;
+</code></pre>
+</li>
+<li><p>set time</p>
+<pre><code class="cpp">ros::Time t(2,0.31);
+ros::Time t(10.35);
+</code></pre>
+</li>
+<li><p>time duration</p>
+<pre><code class="cpp">ros::Duration duration(4.5);
+duration.sleep();
+</code></pre>
+</li>
+<li><p>timer</p>
+<pre><code class="cpp">ros::Timer = n.createTimer();
+//parameter:duration,callback,oneshot,autostart
+</code></pre>
+</li>
+</ul>
+
     </div>
-    <script>
-        new Vue({
-            el: '#archives'
-        })
-    </script>
+
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+    <div id="comment">
+        <div id="gitalk-container">
+        </div>
+    </div>
+    
 </div>
                      
 <footer id="footer">
@@ -279,6 +285,21 @@
             }
         }
     })
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+        clientID: '',
+        clientSecret: '',
+        repo: 'MickyFlowers',      // The repository of store comments,
+        owner: 'MickyFlowers',
+        admin: ['MickyFlowers'],
+        language: 'en',
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: true  // Facebook-like distraction free mode
+    })
+    gitalk.render('gitalk-container')
 </script>
 
 </body>
