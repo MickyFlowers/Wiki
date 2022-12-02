@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My ZJU, My World || </title>
+    <title>My ZJU, My World || Manuplator-Simulation</title>
     <meta name="author" content="yx-Chen">
     <meta name="description" content="Welcome! it's my blog ">
     <meta name="keywords" content=" ">
@@ -133,56 +133,13 @@
                 </div>
 
                 <div id="main">
-                    <div id="home-head" style=background-image:url('home.jpg')>
-    <script>
-        var menu = document.getElementById("menu")
-        menu.className += " menu-color"
-    </script>
-     
-    <div id="home-info" class="home-info" @click="home_click">
-        <span class="loop"></span>
-        <span class="loop"></span>
-        <span class="loop"></span>
-        <span class="loop"></span>
-        <span class="info">
-            <div class="wrap">
-                <h1>My ZJU, My World</h1>
-                <h3></h3>
-                <h5>Welcome! it's my blog</h5>
-            </div>
-        </span>
+                     
+<link rel="stylesheet" href="/css/post-body.css">
+<div class="article">
+    <div>
+        <h1>Manuplator-Simulation </h1>
     </div>
-     
-</div>
-
-
-
-<div id="home-posts-wrap" class=home-posts-wrap-no-card>
-    <div id="home-posts">
-
-        <div id="posts">
-            
-
-<div class="post">
-
-    <a href="/2022/12/02/Manuplator-Simulation/">
-        <h2>
-            Manuplator-Simulation
-        </h2>
-    </a>
-
-    <div class="category-and-date">
-
-        
-        <span class="category">
-            <a href="/categories/RoboMaster">
-                <span class="icon">
-                    <a-icon type="book" theme="filled" /></span>
-                RoboMaster
-            </a>
-        </span>
-        
-
+    <div class="info">
         <span class="date">
             <span class="icon">
                 <a-icon type="calendar" theme="filled" />
@@ -190,13 +147,37 @@
             2022/12/2
         </span>
 
+        
+        <span class="category">
+            <a href="/categories/RoboMaster">
+                <span class="icon">
+                    <a-icon type="book" theme="filled" />
+                </span>
+                RoboMaster
+            </a>
+        </span>
+        
+
+        
+
+        <span class="tags">
+            <span class="icon">
+                <a-icon type="tags" theme="filled" />
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/report" style=color:#03a9f4>
+                    report
+                </a>
+            </span>
+            
+        </span>
+        
     </div>
 
-    <div class="excerpt">
-        <div class="content" v-pre>
-            
-            
-            <h1 id="六轴机械臂仿真"><a href="#六轴机械臂仿真" class="headerlink" title="六轴机械臂仿真"></a>六轴机械臂仿真</h1><h2 id="1简介"><a href="#1简介" class="headerlink" title="1	简介"></a>1	简介</h2><ul>
+    <div class="content" v-pre>
+        <h1 id="六轴机械臂仿真"><a href="#六轴机械臂仿真" class="headerlink" title="六轴机械臂仿真"></a>六轴机械臂仿真</h1><h2 id="1简介"><a href="#1简介" class="headerlink" title="1	简介"></a>1	简介</h2><ul>
 <li><p>在六轴机械臂的研发中，需要对机械臂关节电机的力矩进行选型。在绘制出简要的机械模型后，基于<code>Simulink/Simscape</code>进行模型仿真，根据关节力矩对电机&#x2F;减速器进行选型</p>
 </li>
 <li><p>本次仿真有较大的局限性：</p>
@@ -256,110 +237,12 @@
 <p>关节的输入量通过<code>from workspace block</code>从工作空间读取（此处读取为时序信号，已在<code>robot_show.m</code>模块中进行转化）。为保证机械臂的稳定性，输入信号并非阶跃信号而是经过解算的斜坡函数。同时在10s的仿真中，设定运动时间为前3s。</p>
 <p>若将PID产生的控制信号直接输入关节力矩会产生代数环问题，即你的输入信号由输出信号决定，而输出信号又决定了输入信号。因此在输出信号端增加一阶保持器，来仿真实际的控制情况。</p>
 
-            
-        </div>
     </div>
 
-    <div class="post-tags">
-        
-        <span class="icon">
-            <a-icon type="tags" theme="filled" />
-        </span>
-        
-        
-        <span class="tag">
-            
-            <a href="/tags/report" style=color:#03a9f4>
-                report
-            </a>
-        </span>
-        
-    </div>
-
-    <a href="/2022/12/02/Manuplator-Simulation/ " class="go-post">
-        阅读全文
-    </a>
-</div>
-
-<div class="post">
-
-    <a href="/2022/12/02/hello-world/">
-        <h2>
-            Hello World
-        </h2>
-    </a>
-
-    <div class="category-and-date">
-
-        
-
-        <span class="date">
-            <span class="icon">
-                <a-icon type="calendar" theme="filled" />
-            </span>
-            2022/12/2
-        </span>
-
-    </div>
-
-    <div class="excerpt">
-        <div class="content" v-pre>
-            
-            
-            <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="bash">$ hexo new &quot;My New Post&quot;
-</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="bash">$ hexo server
-</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="bash">$ hexo generate
-</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="bash">$ hexo deploy
-</code></pre>
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-            
-        </div>
-    </div>
-
-    <div class="post-tags">
-        
-        
-    </div>
-
-    <a href="/2022/12/02/hello-world/ " class="go-post">
-        阅读全文
-    </a>
-</div>
-
-
-             
-<div class="page-current">
-
-    <div class="prev">
-        
-    </div>
-
-    <div class="page-index">
-
-        
-
-        <span class="current">
-            1
-        </span>
-
-        
-
-    </div>
-
-    <div class="next">
-        
-    </div>
-
-</div>
-
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+    <div id="comment">
+        <div id="gitalk-container">
         </div>
     </div>
     
@@ -426,6 +309,21 @@
             }
         }
     })
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+    const gitalk = new Gitalk({
+        clientID: '',
+        clientSecret: '',
+        repo: 'hexo-theme-particle',      // The repository of store comments,
+        owner: 'korilin',
+        admin: ['korilin'],
+        language: 'en',
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: true  // Facebook-like distraction free mode
+    })
+    gitalk.render('gitalk-container')
 </script>
 
 </body>
